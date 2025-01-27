@@ -4,38 +4,42 @@ const express=require('express');
 const app=express();
 
 //This will only handle GET call to /user
-app.get("/user",(req,res)=>
-{
-    res.send({firstName:"Siddharth",lastName:"Kumbhar"})
-})
-
-app.post("/user",(req,res)=>
-{
-    //save data to DB
-   // console.log("Save Data to Database")
-    res.send("Data Successfully saved to the Database")
-})
-
-app.delete("/user",(req,res)=>
-{
-    res.send("Deleted Successfully  ")
-})
-
-//handle the request
-//TGis will match all the Http method API calls to /test
-app.use("/test",(req,res)=>
-{
-    res.send("Hello from the Server")
-})
-
-// "/test" is a route
-// and callback function is a request handler in res.send()
-
-
+app.use
+("/user",[
+         (req,res,next)=>
+   {
+    //res.send("Route Handler 1 ");
+    console.log("Handling the Route User1!! ");
+    next(); 
+    //res.send("Response!!");
+   },
+     (req,res,next)=>
+   {
+    //route handler2
+    console.log("Handling the Route User2");
+   // res.send("2nd Response!!");
+     next();
+   },
+   (req,res,next)=>
+    {
+     //route handler3
+     console.log("Handling the Route User3");
+     //res.send("2nd Response!!");
+     next();
+    }],[
+    (req,res,next)=>
+        {
+         //route handler2
+         console.log("Handling the Route User4");
+         res.send("4th Response!!");
+         next();
+        } ]
+); 
 
 
 app.listen(4000,()=>
 {
-    console.log("Server is successfully listeing o port 4000....")
+    console.log("Server is successfully listeing t o port 4000....")
 });
 
+ 
