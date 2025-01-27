@@ -3,43 +3,34 @@ const express=require('express');
 //create a express js application .This is an instance of express 
 const app=express();
 
-//This will only handle GET call to /user
-app.use
-("/user",[
-         (req,res,next)=>
-   {
-    //res.send("Route Handler 1 ");
-    console.log("Handling the Route User1!! ");
-    next(); 
-    //res.send("Response!!");
-   },
-     (req,res,next)=>
-   {
-    //route handler2
-    console.log("Handling the Route User2");
-   // res.send("2nd Response!!");
-     next();
-   },
-   (req,res,next)=>
-    {
-     //route handler3
-     console.log("Handling the Route User3");
-     //res.send("2nd Response!!");
-     next();
-    }],[
-    (req,res,next)=>
-        {
-         //route handler2
-         console.log("Handling the Route User4");
-         res.send("4th Response!!");
-         next();
-        } ]
-); 
+//Handle Auth middleware for All request(GET, POST,PATCH,..) 
+//app.all() also can be used
+const { adminAuth, userAuth }=require("./middlewares/auth.js")
+
+
+app.use("/admin",adminAuth)
+app.use("/user",userAuth)
+
+app.get("/user",userAuth,(req,res)=>
+{
+    res.send("User Data Sent");
+})
+
+app.get("/admin/getAllData",(req,res)=>
+{ 
+        res.send("All Data Sent");
+      
+});
+
+app.get("/admin/deleteUser",(req,res)=>
+{
+    res.send("Deleted A User")
+});
 
 
 app.listen(4000,()=>
 {
-    console.log("Server is successfully listeing t o port 4000....")
+    console.log("Server is successfully listeing to port 4000....")
 });
 
  
