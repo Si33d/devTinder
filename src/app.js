@@ -6,6 +6,31 @@ const User=require('./models/user')
 const app=express();
 app.use(express.json())
 
+
+//get User By email
+app.get('/user',async(req,res)=>
+{
+    const userMail=req.body.emailId;
+    try{
+        const users=await User.find({emailId:userMail})
+        if(!users)
+        {
+            res.status(404).send("User Not Foound")
+        }
+        else{
+            res.send(users);
+        }
+
+    }
+    catch(err)
+    {
+        res.status(404).send("User Not Foound")
+    }
+})
+
+
+
+//Feed API--GET/feed-get all users from the database
 app.post('/signup',async (req,res)=>
 {
     console.log(req.body)
@@ -14,7 +39,7 @@ app.post('/signup',async (req,res)=>
     //     {
     //         firstName:"Siddharth",
     //         lastName:"Kumbhar",
-    //         email:"sidkumbhar1703@gmail.com",
+    //         emailId:"sidkumbhar1703@gmail.com",
     //         password:"Sidhu@123"
 
     //     }
