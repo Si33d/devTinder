@@ -1,42 +1,50 @@
 const express=require('express');
+const connectDB=require('./config/database')
 
+const User=require('./models/user')
 //create a express js application .This is an instance of express 
 const app=express();
+app.use(express.json())
 
-//Handle Auth middleware for All request(GET, POST,PATCH,..) 
-//app.all() also can be used
-const { adminAuth, userAuth }=require("./middlewares/auth.js")
-
-
-app.use("/admin",adminAuth)
-app.use("/user",userAuth)
-
-app.get("/getUserData",(req,res)=>
+app.post('/signup',async (req,res)=>
 {
-    try{
-        //Logic of DB call and get user data
-        throw new Error("dgsww");
-        res.send("User Data Sent");
+    console.log(req.body)
+    const user=new User(req.body)
+    // const user=new User(
+    //     {
+    //         firstName:"Siddharth",
+    //         lastName:"Kumbhar",
+    //         email:"sidkumbhar1703@gmail.com",
+    //         password:"Sidhu@123"
 
-    }catch(err)
-    {
-        res.status(500).send("Something went Wrong  !!!!!");
-    }
-    
-})
+    //     }
+    // )
 
-app.use("/",(err,req,res,next)=>{
-    //if we get error it can be handle here
-    //log your error message
-    if(err)
-    {
-        res.status(500).send("Something went Wrong");
-    }
+    // try{
+        await user.save();
+        res.send("User Added Successfully")
+    // }
+    // catch(err)
+    // {
+    //     res.status(400).send("Error saving the user"+err.message)
+    // }
+       
 })
 
 
-app.listen(4000,()=>
+connectDB()
+.then(()=>
 {
-    console.log("Server is successfully listeing to port 4000....")
-});
+    console.log("Database Connection Established")
+    app.listen(4000,()=>
+        {
+            console.log("Server is successfully listeing to port 4000....")
+        });
+})
+.catch((err)=>
+{
+    console.error("Database cannot be connected!!");
+})
+
+
 

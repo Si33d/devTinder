@@ -1,7 +1,6 @@
 
  const adminAuth=(req,res,next)=>
     {
-    
         console.log("Admin Auth Is Checked");
         const token="xyz";
         const isAdminAuthorized=token==="xyz";
@@ -17,7 +16,6 @@
 
     const userAuth=(req,res,next)=>
         {
-        
             console.log("User Auth Is Checked");
             const token="xyz";
             const isAdminAuthorized=token==="xyz";
