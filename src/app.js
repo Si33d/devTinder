@@ -28,7 +28,25 @@ app.get('/user',async(req,res)=>
     }
 })
 
-
+//getUserById
+app.get('/getUserById',async(req,res)=>
+{
+    const userId=req.body._id;
+    try{
+        const user=await User.find({_id:userId})
+        if(!user)
+        {
+            res.status(404).send("User Not Found")
+        }
+        else{
+            res.send(user);
+        }
+    }
+    catch(err)
+    {
+        res.status(404).send("User Not Found")
+    }
+})
 
 //Feed API--GET/feed-get all users from the database
 app.post('/signup',async (req,res)=>
@@ -55,6 +73,55 @@ app.post('/signup',async (req,res)=>
     // }
        
 })
+
+//delete a user from database
+app.delete("/user",async(req,res)=>
+{
+    const userId=req.body.userId ;
+    try{
+        //this will also work
+        const user=await User.findByIdAndDelete({_id:userId})
+        //shorthand for below line
+        //const user=await User.findByIdAndDelete(userId)
+        res.send("User Deleted Successfully")
+    }
+    catch(err)
+    {
+        res.status(400).send("Something Went Wrong")
+    }
+})
+
+//Update a user from the database by id
+app.patch("/user",async(req,res)=>
+{
+    const userId=req.body.userId;
+    const data=req.body;
+    try{
+        await User.findByIdAndUpdate({_id:userId},data);
+        res.send("User Updated Successfully");
+    }
+    catch(err)
+    {
+        res.status(404).send("Something Went Wrong")
+    }
+}) 
+//Update a user from the database by email
+app.patch("/userbyEmail",async(req,res)=>
+{
+    const userMailId=req.body.emailId;
+    const data=req.body;
+
+    const query={emailId:userMailId}
+    try{
+        await User.findOneAndUpdate(query,data)
+        res.send("User Updated Successfully")
+    }
+    catch{
+        res.status(404).send("Something Went Wrong");
+    }
+})
+
+
 
 
 connectDB()
