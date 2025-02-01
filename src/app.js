@@ -1,6 +1,7 @@
 const express=require('express');
 const connectDB=require('./config/database')
 
+
 const User=require('./models/user')
 //create a express js application .This is an instance of express 
 const app=express();
