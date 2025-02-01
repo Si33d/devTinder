@@ -92,12 +92,27 @@ app.delete("/user",async(req,res)=>
 })
 
 //Update a user from the database by id
-app.patch("/user",async(req,res)=>
+app.patch("/user/:userId",async(req,res)=>
 {
-    const userId=req.body.userId;
+    const userId=req.params?.userId;
     const data=req.body;
     try{
-        await User.findByIdAndUpdate({_id:userId},data);
+        const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills"];
+        const isUpdateAllowed=Object.keys(data).every((k)=>
+        ALLOWED_UPDATES.includes(k))
+        if(!isUpdateAllowed)
+        {
+            throw new Error("Update Not Allowed");
+        }
+        if(data?.skills.length>10)
+        {
+            throw new Error("Skills Cannot be More Than 10")
+        }
+
+        await User.findByIdAndUpdate({_id:userId},data,{
+                returnDocument:"after",
+                runValidators:true,
+            });
         res.send("User Updated Successfully");
     }
     catch(err)
