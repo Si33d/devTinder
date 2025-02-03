@@ -1,141 +1,112 @@
 const express=require('express');
 const connectDB=require('./config/database')
-
+const {validateSignUpData}=require("./utils/validation")
 
 const User=require('./models/user')
+const bcrypt=require("bcrypt");
+const cookieParser=require("cookie-parser"); 
+const jwt=require("jsonwebtoken");
+const {userAuth}=require("./middlewares/auth")
+
+
 //create a express js application .This is an instance of express 
 const app=express();
-app.use(express.json())
+app.use(express.json());
+app.use(cookieParser())
 
 
-//get User By email
-app.get('/user',async(req,res)=>
+
+app.post("/login",async (req,res)=>
 {
-    const userMail=req.body.emailId;
     try{
-        const users=await User.find({emailId:userMail})
-        if(!users)
+        const {emailId,password}=req.body;
+        
+        const user=await User.findOne({emailId:emailId})
+        if(!user)
         {
-            res.status(404).send("User Not Foound")
+            throw new Error("User Not Present")
         }
-        else{
-            res.send(users);
-        }
+        const isPasswordValid=await bcrypt.compare(password,user.password)
 
+        if(!isPasswordValid)
+        {
+            throw new Error("Invalid Credentials")
+        }
+        else
+        {
+            //Create a JWT Token
+            const token=await jwt.sign({_id:user._id},"DEV@Tinder$790",
+                {expiresIn:"7d"}
+            )
+
+            //Add the token to cookie and send the response back to the User
+            res.cookie("token",token,{
+                expires:new Date(Date.now()+8+3600000)
+            });            
+            res.send("Login Successful")
+        }
     }
     catch(err)
     {
-        res.status(404).send("User Not Foound")
+        res.status(400).send("ERROR : "+err.message)
+    }
+});
+
+//profileAPI
+app.get("/profile",userAuth,async (req,res)=>
+{
+    try{
+    const user=req.user;
+    res.send(user);
+    }
+    catch(err)
+    {
+        res.status(400).send("ERROR : "+err.message)
     }
 })
 
-//getUserById
-app.get('/getUserById',async(req,res)=>
+app.post("/sendConnectionRequest",userAuth,(req,res)=>
 {
-    const userId=req.body._id;
-    try{
-        const user=await User.find({_id:userId})
-        if(!user)
-        {
-            res.status(404).send("User Not Found")
-        }
-        else{
-            res.send(user);
-        }
-    }
-    catch(err)
-    {
-        res.status(404).send("User Not Found")
-    }
+    const user=req.user;
+    //Sending a connection request
+    console.log("Sending A connection Request");
+
+    res.send(user.firstName+" Send the connection request")
+
 })
 
 //Feed API--GET/feed-get all users from the database
 app.post('/signup',async (req,res)=>
 {
+    try{
+    //Validation Of Data
+    validateSignUpData(req);
+
+    //Encrypt The Password
+    const {firstName,lastName,emailId,password}=req.body;
+    const passwordHash=await bcrypt.hash(password,10);
+    //console.log(passwordHash);
+
+    //creating the instance of the new Model
     console.log(req.body)
-    const user=new User(req.body)
-    // const user=new User(
-    //     {
-    //         firstName:"Siddharth",
-    //         lastName:"Kumbhar",
-    //         emailId:"sidkumbhar1703@gmail.com",
-    //         password:"Sidhu@123"
+    const user=new User({
+        firstName,
+        lastName,
+        emailId,
+        password: passwordHash,
+    });
 
-    //     }
-    // )
-
-    // try{
         await user.save();
         res.send("User Added Successfully")
-    // }
-    // catch(err)
-    // {
-    //     res.status(400).send("Error saving the user"+err.message)
-    // }
+    }
+    catch(err)
+    {
+        res.status(400).send("ERROR : "+err.message)
+    }
        
 })
 
-//delete a user from database
-app.delete("/user",async(req,res)=>
-{
-    const userId=req.body.userId ;
-    try{
-        //this will also work
-        const user=await User.findByIdAndDelete({_id:userId})
-        //shorthand for below line
-        //const user=await User.findByIdAndDelete(userId)
-        res.send("User Deleted Successfully")
-    }
-    catch(err)
-    {
-        res.status(400).send("Something Went Wrong")
-    }
-})
 
-//Update a user from the database by id
-app.patch("/user/:userId",async(req,res)=>
-{
-    const userId=req.params?.userId;
-    const data=req.body;
-    try{
-        const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills"];
-        const isUpdateAllowed=Object.keys(data).every((k)=>
-        ALLOWED_UPDATES.includes(k))
-        if(!isUpdateAllowed)
-        {
-            throw new Error("Update Not Allowed");
-        }
-        if(data?.skills.length>10)
-        {
-            throw new Error("Skills Cannot be More Than 10")
-        }
-
-        await User.findByIdAndUpdate({_id:userId},data,{
-                returnDocument:"after",
-                runValidators:true,
-            });
-        res.send("User Updated Successfully");
-    }
-    catch(err)
-    {
-        res.status(404).send("Something Went Wrong")
-    }
-}) 
-//Update a user from the database by email
-app.patch("/userbyEmail",async(req,res)=>
-{
-    const userMailId=req.body.emailId;
-    const data=req.body;
-
-    const query={emailId:userMailId}
-    try{
-        await User.findOneAndUpdate(query,data)
-        res.send("User Updated Successfully")
-    }
-    catch{
-        res.status(404).send("Something Went Wrong");
-    }
-})
 
 
 

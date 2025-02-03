@@ -1,32 +1,65 @@
+const jwt =require("jsonwebtoken");
+const  User=require("../models/user")
 
- const adminAuth=(req,res,next)=>
-    {
-        console.log("Admin Auth Is Checked");
-        const token="xyz";
-        const isAdminAuthorized=token==="xyz";
-        if(!isAdminAuthorized)
+// const userAuth=async (req,res,next)=>
+// {
+//     try
+//     {
+//         //read the token from the req cookies
+//         const {token}=req.cookies;
+//         if(!token)
+//         {
+//             throw new Error("Token Is Not Valid!!!!");
+//         }
+
+//     //verify the token
+//     const decodedObj=await jwt.verify(token,"DEV@Tinder$790");
+
+//     const {_id}=decodedObj;
+
+//     //Find the User
+//     const user=await User.findById(_id)
+//     if(!user)
+//     {
+//         throw new Error("User Not Found");
+//     }
+//     req.user=user;
+//     next();
+//     }
+//     catch(err)
+//     {
+//         res.status(400).send("ERROR: "+err.message)
+//     }
+
+// }
+
+const userAuth=async(req,res)=>
+{
+    try{
+        const {token}=req.cookies;
+        if(!token)
         {
-            res.status(401).send("Unauthorized Request");
+            throw new Error("Token is Not Valid ");
         }
-        else
+
+        const decodedObj=await jwt.verify(token,"DEV@Tinder$790")
+
+        const {_id}=decodedObj;
+        const user=await User.findById(_id)
+        if(!user)
         {
-            next()
+            throw new Error("User Not Present");
         }
+        req.user=user;
+        next();
     }
+    catch(err)
+    { 
+        res.status(400).send("ERROR: "+err.message)
+    }
+}
 
-    const userAuth=(req,res,next)=>
-        {
-            console.log("User Auth Is Checked");
-            const token="xyz";
-            const isAdminAuthorized=token==="xyz";
-            if(!isAdminAuthorized)
-            {
-                res.status(401).send("Unauthorized Request");
-            }
-            else
-            {
-                next()
-            }
-        }
 
-    module.exports={adminAuth,userAuth}
+
+
+module.exports={userAuth,}

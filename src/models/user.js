@@ -45,12 +45,12 @@ const userSchema=new mongoose.Schema(
         },
         age:{
             type:Number,
-            required:true,
+            //required:true,
             min:18
         },
         gender:{
             type:String,
-            required:true,
+            //required:true,
             validate(value)
             {
                 if(!["male","female","others"].includes(value))
@@ -62,13 +62,13 @@ const userSchema=new mongoose.Schema(
         photoUrl:{
             type:String,
             default:"",
-            validate(value)
-            {
-                if(!validator.isURL(value))
-                {
-                    throw new Error("Invalid Photo URL :"+value)
-                }
-            }
+            // validate(value)
+            // {
+            //     if(!validator.isURL(value))
+            //     {
+            //         throw new Error("Invalid Photo URL :"+value)
+            //     }
+            // }
         },
         about:{
             type:String,
