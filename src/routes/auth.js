@@ -3,6 +3,7 @@ const express=require("express");
 const authRouter=express.Router();
 const {validateSignUpData}=require("../utils/validation");
 const User=require('../models/user')
+const bcrypt=require("bcrypt");
 
 authRouter.post("/login",async (req,res)=>
     {
@@ -50,7 +51,7 @@ authRouter.post('/signup',async (req,res)=>
         //console.log(passwordHash);
     
         //creating the instance of the new Model
-        console.log(req.body)
+       // console.log(req.body)
         const user=new User({
             firstName,
             lastName,

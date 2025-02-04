@@ -38,4 +38,15 @@ profileAuth.patch("/profile/edit",userAuth,async(req,res)=>
     }
 })
 
-    module.exports=profileAuth;
+profileAuth.patch("/profile/password",async(req,res)=>
+{
+    try{
+        
+    }
+    catch(err)
+    {
+        res.status(400).send("Invalid Credentials");
+    }
+})
+
+module.exports=profileAuth;
