@@ -33,7 +33,7 @@ const  User=require("../models/user")
 
 // }
 
-const userAuth=async(req,res)=>
+const userAuth=async(req,res,next)=>
 {
     try{
         const {token}=req.cookies;
