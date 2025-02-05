@@ -19,7 +19,7 @@ authRouter.post("/login",async (req,res)=>
     
             if(!isPasswordValid)
             {
-                throw new Error("Invalid Credentials")
+                throw new Error("Invalid Credentials");
             }
             else
             {

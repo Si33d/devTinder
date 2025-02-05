@@ -63,5 +63,41 @@ requestAuth.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
 }
     
 )
-    
+
+requestAuth.post("/request/review/:status/:requestId",userAuth,async(req,res)=>
+{
+    try{
+        const loggedInUser=req.user;
+        const {status,requestId}=req.params;
+        //validate the status
+        const allowedStatus=["accepted","rejected"];
+        if(!allowedStatus.includes(status))
+        {
+            return res.status(400).json({message:"Invalid Status request"});
+        }
+
+        const connectionRequest=await ConnectionRequest.findOne(
+            {
+                _id:requestId,
+                toUserId:loggedInUser._id,
+                status:"interested",
+            }
+        )
+        if(!connectionRequest)
+        {
+            return res.status(400).send("Connection request Not Found");
+        }
+        connectionRequest.status=status;
+        const data=await connectionRequest.save();
+        res.json({message:"Connection Request"+status,data});
+
+    }
+    catch(err)
+    {
+        res.status(400).send("ERROR: "+err.message)
+    }
+})
+
+
+
 module.exports=requestAuth;
